@@ -1,7 +1,6 @@
 <?php
-/**
- * Подключение к базе данных через PDO
- */
+
+declare(strict_types=1);
 
 require_once __DIR__ . '/config.php';
 

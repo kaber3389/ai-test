@@ -1,11 +1,9 @@
 <?php
-/**
- * Обработчик AJAX-запросов (API)
- */
+
+declare(strict_types=1);
 
 session_start();
 
-// Проверка авторизации
 if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
     http_response_code(401);
     echo json_encode(['success' => false, 'error' => 'Неавторизованный доступ']);
@@ -40,10 +38,7 @@ switch ($action) {
         echo json_encode(['success' => false, 'error' => 'Неизвестное действие']);
 }
 
-/**
- * Получить список всех лендингов
- */
-function getLandings($pdo) {
+function getLandings(PDO $pdo): void {
     try {
         $stmt = $pdo->query("SELECT id, landing_name FROM landings_data ORDER BY landing_name ASC");
         $landings = $stmt->fetchAll();
@@ -60,10 +55,9 @@ function getLandings($pdo) {
     }
 }
 
-/**
- * Получить данные конкретного лендинга
- */
-function getLandingData($pdo) {
+function getLandingData(PDO $pdo): void {
+    global $fieldConfig;
+    
     $landingId = $_POST['landing_id'] ?? null;
     
     if (!$landingId) {
@@ -71,8 +65,6 @@ function getLandingData($pdo) {
         return;
     }
     
-    // Получаем список полей из конфига
-    global $fieldConfig;
     $fields = array_keys($fieldConfig);
     $fieldsStr = implode(', ', $fields);
     
@@ -101,10 +93,9 @@ function getLandingData($pdo) {
     }
 }
 
-/**
- * Сохранить значение поля
- */
-function saveField($pdo) {
+function saveField(PDO $pdo): void {
+    global $fieldConfig;
+    
     $landingId = $_POST['landing_id'] ?? null;
     $fieldName = $_POST['field_name'] ?? null;
     $value = $_POST['value'] ?? '';
@@ -114,8 +105,6 @@ function saveField($pdo) {
         return;
     }
     
-    // Проверяем, что поле существует в конфиге (безопасность)
-    global $fieldConfig;
     if (!array_key_exists($fieldName, $fieldConfig)) {
         echo json_encode(['success' => false, 'error' => 'Недопустимое имя поля']);
         return;
@@ -141,11 +130,9 @@ function saveField($pdo) {
     }
 }
 
-/**
- * Имитация генерации через ИИ
- * В реальном проекте здесь был бы вызов API (OpenAI, Anthropic, etc.)
- */
-function generateAI() {
+function generateAI(): void {
+    global $fieldConfig;
+    
     $landingId = $_POST['landing_id'] ?? null;
     $fieldName = $_POST['field_name'] ?? null;
     $currentValue = $_POST['current_value'] ?? '';
@@ -155,16 +142,11 @@ function generateAI() {
         return;
     }
     
-    global $fieldConfig;
     if (!array_key_exists($fieldName, $fieldConfig)) {
         echo json_encode(['success' => false, 'error' => 'Недопустимое имя поля']);
         return;
     }
     
-    // Имитация задержки ответа ИИ (в реальном проекте - вызов API)
-    // usleep(1500000); // 1.5 секунды
-    
-    // Генерируем "умный" ответ на основе названия поля
     $generatedText = generateMockAIText($fieldName, $currentValue);
     
     echo json_encode([
@@ -173,11 +155,7 @@ function generateAI() {
     ]);
 }
 
-/**
- * Имитация ответа ИИ для разных полей
- * В реальном проекте заменить на вызов API
- */
-function generateMockAIText($fieldName, $currentValue) {
+function generateMockAIText(string $fieldName, string $currentValue): string {
     $templates = [
         'title' => [
             'Лучшие решения для вашего бизнеса | Компания Pro',
@@ -208,6 +186,5 @@ function generateMockAIText($fieldName, $currentValue) {
         return $options[array_rand($options)];
     }
     
-    // Если поле неизвестно, возвращаем заглушку
     return 'Сгенерированный текст для поля ' . $fieldName;
 }

@@ -1,11 +1,9 @@
 <?php
-/**
- * Страница входа в админку
- */
+
+declare(strict_types=1);
 
 session_start();
 
-// Если уже авторизован - редирект в админку
 if (isset($_SESSION['authenticated']) && $_SESSION['authenticated'] === true) {
     header('Location: admin.php');
     exit;

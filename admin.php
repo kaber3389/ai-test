@@ -127,20 +127,30 @@ require_once __DIR__ . '/config.php';
 
     <script>
     $(document).ready(function() {
-        let currentLandingId: number | null = null;
+        /** @type {number | null} */
+        let currentLandingId = null;
+        
+        /** @type {Object.<string, {label: string, rows: number, placeholder: string}>} */
         const fieldConfig = <?= json_encode($fieldConfig) ?>;
 
-        function showSpinner(): void {
+        /** @returns {void} */
+        function showSpinner() {
             $('#spinner').addClass('active');
             $('body').addClass('locked');
         }
 
-        function hideSpinner(): void {
+        /** @returns {void} */
+        function hideSpinner() {
             $('#spinner').removeClass('active');
             $('body').removeClass('locked');
         }
 
-        function showToast(message: string, type: 'success' | 'error' = 'success'): void {
+        /**
+         * @param {string} message 
+         * @param {'success' | 'error'} type 
+         * @returns {void}
+         */
+        function showToast(message, type = 'success') {
             const toastClass = type === 'success' ? 'toast-success' : 'toast-error';
             const toast = $('<div class="toast ' + toastClass + '">' + message + '</div>');
             $('#toast-container').append(toast);
@@ -152,14 +162,15 @@ require_once __DIR__ . '/config.php';
             }, 3000);
         }
 
-        function loadLandings(): void {
+        /** @returns {void} */
+        function loadLandings() {
             showSpinner();
             $.ajax({
                 url: 'handler.php',
                 method: 'POST',
                 data: { action: 'get_landings' },
                 dataType: 'json',
-                success: function(response: { success: boolean; data: Array<{ id: number; landing_name: string }> }) {
+                success: function(response) {
                     if (response.success) {
                         const $select = $('#landing-select');
                         response.data.forEach(function(landing) {
@@ -178,7 +189,11 @@ require_once __DIR__ . '/config.php';
             });
         }
 
-        function loadLandingData(landingId: number): void {
+        /**
+         * @param {number} landingId 
+         * @returns {void}
+         */
+        function loadLandingData(landingId) {
             currentLandingId = landingId;
             showSpinner();
             
@@ -187,7 +202,7 @@ require_once __DIR__ . '/config.php';
                 method: 'POST',
                 data: { action: 'get_landing_data', landing_id: landingId },
                 dataType: 'json',
-                success: function(response: { success: boolean; data: Record<string, string> }) {
+                success: function(response) {
                     if (response.success) {
                         renderFields(response.data);
                     } else {
@@ -203,7 +218,11 @@ require_once __DIR__ . '/config.php';
             });
         }
 
-        function renderFields(data: Record<string, string>): void {
+        /**
+         * @param {Object.<string, string>} data 
+         * @returns {void}
+         */
+        function renderFields(data) {
             const $container = $('#fields-container');
             $container.empty();
 
@@ -262,18 +281,27 @@ require_once __DIR__ . '/config.php';
             });
         }
 
-        function escapeHtml(text: string): string {
-            const map: Record<string, string> = {
+        /**
+         * @param {string} text 
+         * @returns {string}
+         */
+        function escapeHtml(text) {
+            const map = {
                 '&': '&amp;',
                 '<': '&lt;',
                 '>': '&gt;',
                 '"': '&quot;',
                 "'": '&#039;'
             };
-            return String(text).replace(/[&<>"']/g, function(m) { return map[m]; });
+            return String(text).replace(/[&<>\"']/g, function(m) { return map[m]; });
         }
 
-        function saveField(fieldName: string, value: string): void {
+        /**
+         * @param {string} fieldName 
+         * @param {string} value 
+         * @returns {void}
+         */
+        function saveField(fieldName, value) {
             showSpinner();
             
             $.ajax({
@@ -286,7 +314,7 @@ require_once __DIR__ . '/config.php';
                     value: value
                 },
                 dataType: 'json',
-                success: function(response: { success: boolean; error?: string }) {
+                success: function(response) {
                     if (response.success) {
                         showToast('Поле "' + fieldConfig[fieldName].label + '" сохранено', 'success');
                     } else {
@@ -302,7 +330,11 @@ require_once __DIR__ . '/config.php';
             });
         }
 
-        function generateAI(fieldName: string): void {
+        /**
+         * @param {string} fieldName 
+         * @returns {void}
+         */
+        function generateAI(fieldName) {
             const $fieldBlock = $('.field-block[data-field="' + fieldName + '"]');
             const $preview = $('#preview-' + fieldName);
             const $textarea = $('#field-' + fieldName);
@@ -320,7 +352,7 @@ require_once __DIR__ . '/config.php';
                     current_value: $textarea.val()
                 },
                 dataType: 'json',
-                success: function(response: { success: boolean; generated_text?: string; error?: string }) {
+                success: function(response) {
                     if (response.success) {
                         $preview.find('.ai-preview-text').text(response.generated_text);
                         $preview.data('generated-text', response.generated_text);
@@ -350,20 +382,20 @@ require_once __DIR__ . '/config.php';
         });
 
         $(document).on('click', '.save-btn', function() {
-            const fieldName = $(this).data('field') as string;
-            const value = $('#field-' + fieldName).val() as string;
+            const fieldName = $(this).data('field');
+            const value = $('#field-' + fieldName).val();
             saveField(fieldName, value);
         });
 
         $(document).on('click', '.ai-btn', function() {
-            const fieldName = $(this).data('field') as string;
+            const fieldName = $(this).data('field');
             generateAI(fieldName);
         });
 
         $(document).on('click', '.apply-btn', function() {
-            const fieldName = $(this).data('field') as string;
+            const fieldName = $(this).data('field');
             const $preview = $('#preview-' + fieldName);
-            const generatedText = $preview.data('generated-text') as string;
+            const generatedText = $preview.data('generated-text');
             
             $('#field-' + fieldName).val(generatedText);
             $preview.removeClass('active');
@@ -372,7 +404,7 @@ require_once __DIR__ . '/config.php';
         });
 
         $(document).on('click', '.cancel-btn', function() {
-            const fieldName = $(this).data('field') as string;
+            const fieldName = $(this).data('field');
             $('#preview-' + fieldName).removeClass('active');
         });
 

@@ -62,18 +62,15 @@ require_once __DIR__ . '/config.php';
 
         <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
             <!-- Верхняя панель: Выбор лендинга -->
-            <div class="p-6 sm:p-8 border-b border-slate-100 bg-slate-50/50">
+            <div class="p-4 sm:p-6 border-b border-slate-100 bg-slate-50/50">
                 <label for="landing-select" class="block text-sm font-semibold text-slate-700 mb-2">Выберите лендинг</label>
                 <div class="relative">
                     <select 
                         id="landing-select" 
-                        class="block w-full pl-4 pr-10 py-3 text-base border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-xl shadow-sm transition-shadow cursor-pointer"
+                        class="block w-full pl-4 pr-10 py-3 text-base border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-sm shadow-sm transition-shadow cursor-pointer"
                     >
                         <option value="">-- Выберите проект --</option>
                     </select>
-                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
-                        <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
-                    </div>
                 </div>
             </div>
 
@@ -85,35 +82,32 @@ require_once __DIR__ . '/config.php';
                         <div class="relative">
                             <select 
                                 id="rk-select" 
-                                class="block w-full pl-4 pr-10 py-3 text-base border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-xl shadow-sm transition-shadow cursor-pointer"
+                                class="block w-full pl-4 pr-10 py-3 text-base border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-sm shadow-sm transition-shadow cursor-pointer"
                             >
                                 <option value="">-- Выберите РК --</option>
                             </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
-                                <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
-                            </div>
                         </div>
                     </div>
-                    <button id="add-rk-btn" class="inline-flex items-center px-4 py-3 text-sm font-medium text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition-colors whitespace-nowrap">
+                    <button id="add-rk-btn" class="inline-flex items-center px-4 py-3 text-sm font-medium text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-sm transition-colors whitespace-nowrap">
                         <svg class="w-5 h-5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                         Добавить РК
                     </button>
-                    <button id="delete-rk-btn" class="delete-rk-btn inline-flex items-center px-4 py-3 text-sm font-medium text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded-xl transition-colors whitespace-nowrap hidden">
+                    <button id="delete-rk-btn" class="delete-rk-btn inline-flex items-center px-4 py-3 text-sm font-medium text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded-sm transition-colors whitespace-nowrap hidden">
                         <svg class="w-5 h-5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                         Удалить
                     </button>
                 </div>
                 
                 <!-- Форма для добавления новой РК -->
-                <div id="rk-form-container" class="hidden mt-4 p-4 bg-white border border-slate-200 rounded-lg">
+                <div id="rk-form-container" class="hidden mt-4 p-4 bg-white border border-slate-200 rounded-sm">
                     <label for="new-rk-name" class="block text-sm font-medium text-slate-600 mb-2">Название новой рекламной кампании</label>
-                    <input type="text" id="new-rk-name" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm mb-3" placeholder="Введите название РК...">
+                    <input type="text" id="new-rk-name" class="w-full px-3 py-2 border border-slate-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm mb-3" placeholder="Введите название РК...">
                     
                     <div class="flex gap-2">
-                        <button id="save-new-rk-btn" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-colors">
+                        <button id="save-new-rk-btn" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-sm transition-colors">
                             Сохранить
                         </button>
-                        <button id="cancel-new-rk-btn" class="px-4 py-2 bg-white hover:bg-slate-100 text-slate-600 border border-slate-300 text-sm font-medium rounded-lg transition-colors">
+                        <button id="cancel-new-rk-btn" class="px-4 py-2 bg-white hover:bg-slate-100 text-slate-600 border border-slate-300 text-sm font-medium rounded-sm transition-colors">
                             Отмена
                         </button>
                     </div>
@@ -121,7 +115,7 @@ require_once __DIR__ . '/config.php';
             </div>
 
             <!-- Контейнер полей для редактирования -->
-            <div id="fields-container" class="p-6 sm:p-8 space-y-8">
+            <div id="fields-container" class="p-4 sm:p-8 space-y-6">
                 <div class="text-center py-12 text-slate-400">
                     <svg class="mx-auto h-12 w-12 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
                     <p class="mt-2 text-sm">Выберите лендинг из списка выше</p>
@@ -188,7 +182,7 @@ $(document).ready(function() {
             : '<svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>';
         
         const toast = $(
-            '<div class="toast flex items-center w-full max-w-xs p-4 rounded-xl shadow-lg border ' + toastClass + ' transform transition-all duration-300">' +
+            '<div class="toast flex items-center w-full max-w-xs p-4 rounded-sm shadow-lg border ' + toastClass + ' transform transition-all duration-300">' +
                 '<div class="flex-shrink-0">' + icon + '</div>' +
                 '<div class="ml-3 text-sm font-medium">' + escapeHtml(message) + '</div>' +
             '</div>'
@@ -359,7 +353,7 @@ $(document).ready(function() {
             const textareaId = 'field-' + fieldName;
             
             const fieldHtml = 
-                '<div class="field-group bg-white rounded-xl border border-slate-200 shadow-sm p-6 transition-shadow hover:shadow-md" data-field="' + fieldName + '">' +
+                '<div class="field-group bg-white rounded-sm border border-slate-200 shadow-sm p-2 transition-shadow hover:shadow-md" data-field="' + fieldName + '">' +
                     '<div class="flex justify-between items-center mb-4">' +
                         '<label for="' + textareaId + '" class="block text-base font-semibold text-slate-800">' +
                             escapeHtml(config.label) +
@@ -370,20 +364,20 @@ $(document).ready(function() {
                     '<textarea ' +
                         'id="' + textareaId + '" ' +
                         'rows="' + config.rows + '" ' +
-                        'class="w-full p-4 text-slate-700 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all resize-y font-mono text-sm leading-relaxed" ' +
+                        'class="w-full p-4 text-slate-700 bg-slate-50 border border-slate-200 rounded-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all resize-y font-mono text-sm leading-relaxed" ' +
                         'placeholder="' + escapeHtml(config.placeholder) + '"' +
                     '>' + escapeHtml(value) + '</textarea>' +
                     
-                    '<div class="mt-5 flex flex-wrap gap-3 items-center">' +
+                    '<div class="mt-2 flex flex-wrap gap-3 items-center">' +
                         '<button ' +
-                            'class="save-btn btn-icon px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg shadow-sm hover:shadow transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed" ' +
+                            'class="save-btn btn-icon px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-sm shadow-sm hover:shadow transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed" ' +
                             'data-field="' + fieldName + '"' +
                         '>' +
                             '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>' +
                             'Сохранить' +
                         '</button>' +
                         '<button ' +
-                            'class="ai-btn btn-icon px-5 py-2.5 ai-gradient text-white text-sm font-medium rounded-lg shadow-sm hover:shadow-md transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed group" ' +
+                            'class="ai-btn btn-icon px-5 py-2.5 ai-gradient text-white text-sm font-medium rounded-sm shadow-sm hover:shadow-md transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed group" ' +
                             'data-field="' + fieldName + '"' +
                         '>' +
                             '<svg class="w-4 h-4 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>' +
@@ -391,13 +385,13 @@ $(document).ready(function() {
                         '</button>' +
                     '</div>' +
                     
-                    '<div id="' + previewId + '" class="ai-preview mt-6 p-5 bg-indigo-50 border border-indigo-100 rounded-xl relative overflow-hidden">' +
+                    '<div id="' + previewId + '" class="ai-preview mt-6 p-5 bg-indigo-50 border border-indigo-100 rounded-sm relative overflow-hidden">' +
                         '<div class="absolute top-0 left-0 w-1 h-full bg-indigo-400"></div>' +
                         '<p class="text-xs font-bold text-indigo-500 uppercase tracking-wider mb-3">Предварительный просмотр ИИ</p>' +
                         '<div class="ai-preview-text text-slate-700 text-sm whitespace-pre-wrap mb-4 font-sans"></div>' +
                         '<div class="flex gap-3">' +
-                            '<button class="apply-btn px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-sm transition-colors" data-field="' + fieldName + '">Применить</button>' +
-                            '<button class="cancel-btn px-4 py-2 bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 text-xs font-semibold rounded-lg shadow-sm transition-colors" data-field="' + fieldName + '">Отменить</button>' +
+                            '<button class="apply-btn px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-sm shadow-sm transition-colors" data-field="' + fieldName + '">Применить</button>' +
+                            '<button class="cancel-btn px-4 py-2 bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 text-xs font-semibold rounded-sm shadow-sm transition-colors" data-field="' + fieldName + '">Отменить</button>' +
                         '</div>' +
                     '</div>' +
                 '</div>';

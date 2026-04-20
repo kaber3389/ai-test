@@ -8,6 +8,12 @@ define('DB_USER', 'root');
 define('DB_PASS', 'root');
 
 $fieldConfig = [
+    'rk_name' => [
+        'label' => 'Рекламная кампания (RK)',
+        'type' => 'text',
+        'rows' => 1,
+        'placeholder' => 'Введите название рекламной кампании...'
+    ],
     'title' => [
         'label' => 'Заголовок (Title)',
         'type' => 'textarea',

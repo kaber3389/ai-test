@@ -1,4 +1,25 @@
-```
-# No build artifacts, dependencies, or temporary files detected in changes
-# Only source/config files present (.php, .sql), so no additional ignores needed
-```
+# Examples 1:
+
+# Example 2 (Project with artifacts):
+# Compiled and build artifacts
+*.pyc
+pycache/
+*.o
+*.obj
+dist/
+build/
+# Dependencies
+.venv/
+venv/
+node_modules/
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+# Environment
+.env
+.env.local
+.env.
+# Editors
+.vscode/
+.idea/

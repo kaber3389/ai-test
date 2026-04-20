@@ -1,0 +1,1 @@
+Nothing should be ignored in this case, as the changes consist only of PHP source files, SQL files, and a markdown file, which are all legitimate project files that should be tracked in version control.

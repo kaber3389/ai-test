@@ -13,6 +13,14 @@ if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/config.php';
 
+// ============================================================
+// NEUROAPI CONFIGURATION
+// ============================================================
+define('NEUROAPI_KEY', 'sk-NireE2orzRrRR4QdlSZGwKXD3pJQUJjy4zbKZU5PjAeYDGc0');
+define('NEUROAPI_BASE_URL', 'https://neuroapi.host/v1');
+define('NEUROAPI_MODEL', 'gpt-5.2');
+define('REQUEST_TIMEOUT', 30);
+
 header('Content-Type: application/json; charset=utf-8');
 
 $action = $_POST['action'] ?? '';
@@ -195,15 +203,15 @@ function saveField(PDO $pdo): void {
 }
 
 /**
- * Сгенерировать AI текст (мок-функция)
+ * Сгенерировать AI текст через NeuroAPI
  * 
  * @return void
  */
 function generateAI(): void {
-    global $fieldConfig;
+    global $fieldConfig, $pdo;
     
     $fieldName = $_POST['field_name'] ?? null;
-    $currentValue = $_POST['current_value'] ?? '';
+    $entryId = $_POST['entry_id'] ?? null;
     
     if (!$fieldName) {
         echo json_encode(['success' => false, 'error' => 'Не указано имя поля']);
@@ -215,12 +223,164 @@ function generateAI(): void {
         return;
     }
     
-    $generatedText = generateMockAIText($fieldName, $currentValue);
+    // Получаем контекст: landing_name и rk_name
+    $landingName = '';
+    $rkName = '';
+    
+    if ($entryId) {
+        try {
+            $stmt = $pdo->prepare("
+                SELECT l.landing_name, lr.rk_name 
+                FROM landings_rk lr 
+                JOIN landings l ON lr.landing_id = l.id 
+                WHERE lr.id = :id
+            ");
+            $stmt->execute(['id' => $entryId]);
+            $context = $stmt->fetch();
+            
+            if ($context) {
+                $landingName = $context['landing_name'];
+                $rkName = $context['rk_name'];
+            }
+        } catch (PDOException $e) {
+            // Игнорируем ошибку, контекст будет пустым
+        }
+    }
+    
+    // Формируем промпт с контекстом
+    $prompt = buildPrompt($fieldName, $landingName, $rkName);
+    
+    // Делаем запрос к NeuroAPI
+    $generatedText = callNeuroAPI($prompt);
+    
+    if ($generatedText === null) {
+        echo json_encode(['success' => false, 'error' => 'Ошибка при вызове NeuroAPI']);
+        return;
+    }
     
     echo json_encode([
         'success' => true,
         'generated_text' => $generatedText
     ]);
+}
+
+/**
+ * Построить промпт для генерации контента
+ * 
+ * @param string $fieldName - Имя поля
+ * @param string $landingName - Название лендинга
+ * @param string $rkName - Название рекламной кампании
+ * @return string
+ */
+function buildPrompt(string $fieldName, string $landingName, string $rkName): string {
+    $contextParts = [];
+    
+    if ($landingName) {
+        $contextParts[] = "лендинг \"{$landingName}\"";
+    }
+    
+    if ($rkName) {
+        $contextParts[] = "рекламная кампания \"{$rkName}\"";
+    }
+    
+    $context = !empty($contextParts) 
+        ? " с учетом тематики " . implode(' и ', $contextParts)
+        : '';
+    
+    $prompts = [
+        'title' => "Ты — профессиональный SEO-маркетолог. Напиши meta title (заголовок страницы) для{$context}. " .
+            "Заголовок должен быть до 60 символов, содержать ключевые слова и привлекать клики. " .
+            "Ответ возвращай только текстом заголовка без кавычек и дополнительного форматирования.",
+        
+        'description' => "Ты — профессиональный SEO-маркетолог. Напиши meta description (описание страницы) для{$context}. " .
+            "Описание должно быть до 160 символов, содержать призыв к действию и ключевые слова. " .
+            "Ответ возвращай только текстом описания без кавычек и дополнительного форматирования.",
+        
+        'keywords' => "Ты — профессиональный SEO-маркетолог. Подбери ключевые слова (keywords) для{$context}. " .
+            "Слова должны быть релевантными тематике, перечисли их через запятую (5-10 слов). " .
+            "Ответ возвращай только списком слов через запятую без кавычек и дополнительного форматирования.",
+        
+        'h1' => "Ты — профессиональный маркетолог. Напиши главный заголовок H1 для{$context}. " .
+            "Заголовок должен быть кратким (до 50 символов), цепляющим и отражать суть предложения. " .
+            "Ответ возвращай только текстом заголовка без кавычек и дополнительного форматирования."
+    ];
+    
+    return $prompts[$fieldName] ?? "Напиши текст для поля {$fieldName}.";
+}
+
+/**
+ * Вызов NeuroAPI через cURL
+ * 
+ * @param string $prompt - Текст промпта
+ * @return string|null - Сгенерированный текст или null при ошибке
+ */
+function callNeuroAPI(string $prompt): ?string {
+    $url = NEUROAPI_BASE_URL . '/chat/completions';
+    
+    $data = [
+        'model' => NEUROAPI_MODEL,
+        'messages' => [
+            [
+                'role' => 'user',
+                'content' => $prompt
+            ]
+        ],
+        'temperature' => 0.7,
+        'max_tokens' => 200
+    ];
+    
+    $ch = curl_init($url);
+    
+    if ($ch === false) {
+        error_log('cURL initialization failed');
+        return null;
+    }
+    
+    $headers = [
+        'Content-Type: application/json',
+        'Authorization: Bearer ' . NEUROAPI_KEY
+    ];
+    
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST => true,
+        CURLOPT_HTTPHEADER => $headers,
+        CURLOPT_POSTFIELDS => json_encode($data, JSON_UNESCAPED_UNICODE),
+        CURLOPT_TIMEOUT => REQUEST_TIMEOUT,
+        CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_SSL_VERIFYHOST => 2
+    ]);
+    
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $error = curl_error($ch);
+    
+    curl_close($ch);
+    
+    if ($response === false || $error) {
+        error_log('cURL error: ' . $error);
+        return null;
+    }
+    
+    if ($httpCode !== 200) {
+        error_log('NeuroAPI HTTP error: ' . $httpCode . ' Response: ' . $response);
+        return null;
+    }
+    
+    $result = json_decode($response, true);
+    
+    if (!isset($result['choices'][0]['message']['content'])) {
+        error_log('Invalid NeuroAPI response structure: ' . $response);
+        return null;
+    }
+    
+    $text = trim($result['choices'][0]['message']['content']);
+    
+    // Очищаем от возможных markdown-обёрток
+    $text = preg_replace('/^```(?:json)?\s*/', '', $text);
+    $text = preg_replace('/\s*```$/', '', $text);
+    
+    return trim($text);
 }
 
 /**
@@ -293,54 +453,4 @@ function deleteRkEntry(PDO $pdo): void {
             'error' => 'Ошибка базы данных: ' . $e->getMessage()
         ]);
     }
-}
-
-/**
- * Генерация мок-текста для AI
- * 
- * @param string $fieldName
- * @param string $currentValue
- * @return string
- */
-function generateMockAIText(string $fieldName, string $currentValue): string {
-    $templates = [
-        'rk_name' => [
-            'Рекламная кампания 2024',
-            'Весеннее предложение',
-            'Контекстная реклама Яндекс',
-            'Таргетированная реклама VK',
-            'Google Ads продвижение',
-            'Сезонная распродажа',
-            'Новогодняя акция'
-        ],
-        'title' => [
-            'Лучшие решения для вашего бизнеса | Компания Pro',
-            'Профессиональные услуги высокого качества',
-            'Инновационные технологии для современного мира',
-            'Ваш надёжный партнёр в цифровую эпоху'
-        ],
-        'description' => [
-            'Мы предлагаем широкий спектр услуг для развития вашего бизнеса. Наша команда профессионалов готова помочь вам достичь поставленных целей с помощью современных технологий и индивидуального подхода.',
-            'Откройте для себя новые возможности вместе с нами. Мы предоставляем качественные решения, которые помогут вашему бизнесу расти и развиваться в условиях современной конкуренции.',
-            'Доверьте свои задачи профессионалам. Многолетний опыт, современные методики и персональный подход к каждому клиенту — наши главные преимущества.'
-        ],
-        'keywords' => [
-            'бизнес, услуги, профессионалы, качество, развитие, технологии, решения, компания',
-            'онлайн сервис, цифровые решения, автоматизация, эффективность, рост',
-            'маркетинг, продвижение, SEO, контекстная реклама, социальные сети'
-        ],
-        'h1' => [
-            'Добро пожаловать в мир инноваций',
-            'Ваш успех начинается здесь',
-            'Профессиональные решения для вашего бизнеса',
-            'Создаём будущее вместе с вами'
-        ]
-    ];
-    
-    if (isset($templates[$fieldName])) {
-        $options = $templates[$fieldName];
-        return $options[array_rand($options)];
-    }
-    
-    return 'Сгенерированный текст для поля ' . $fieldName;
 }

@@ -75,7 +75,7 @@ require_once __DIR__ . '/config.php';
             </div>
 
             <!-- Секция выбора РК (появляется после выбора лендинга) -->
-            <div id="rk-section" class="p-6 sm:p-8 border-t border-slate-100 bg-slate-50/50 hidden">
+            <div id="rk-section" class="p-4 sm:p-6 border-t border-slate-100 bg-slate-50/50 hidden">
                 <div class="flex items-end gap-3 mb-4">
                     <div class="flex-1">
                         <label for="rk-select" class="block text-sm font-semibold text-slate-700 mb-2">Рекламная кампания</label>
@@ -97,7 +97,7 @@ require_once __DIR__ . '/config.php';
                         Удалить
                     </button>
                 </div>
-                
+
                 <!-- Форма для добавления новой РК -->
                 <div id="rk-form-container" class="hidden mt-4 p-4 bg-white border border-slate-200 rounded-sm">
                     <label for="new-rk-name" class="block text-sm font-medium text-slate-600 mb-2">Название новой рекламной кампании</label>
@@ -115,7 +115,7 @@ require_once __DIR__ . '/config.php';
             </div>
 
             <!-- Контейнер полей для редактирования -->
-            <div id="fields-container" class="p-4 sm:p-8 space-y-6">
+            <div id="fields-container" class="p-4 sm:p-6 space-y-6">
                 <div class="text-center py-12 text-slate-400">
                     <svg class="mx-auto h-12 w-12 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
                     <p class="mt-2 text-sm">Выберите лендинг из списка выше</p>
@@ -134,10 +134,10 @@ require_once __DIR__ . '/config.php';
 <script>
 /**
  * @typedef {Object} FieldConfig
- * @property {string} label - Метка поля
- * @property {string} type - Тип поля (textarea)
- * @property {number} rows - Количество строк
- * @property {string} placeholder - Плейсхолдер
+ * @property {string} label
+ * @property {string} type
+ * @property {number} rows
+ * @property {string} placeholder
  */
 
 /** @type {Object.<string, FieldConfig>} */
@@ -151,7 +151,6 @@ $(document).ready(function() {
     let currentEntryId = null;
 
     /**
-     * Показать спиннер загрузки
      * @returns {void}
      */
     function showSpinner() {
@@ -160,7 +159,6 @@ $(document).ready(function() {
     }
 
     /**
-     * Скрыть спиннер загрузки
      * @returns {void}
      */
     function hideSpinner() {
@@ -169,9 +167,8 @@ $(document).ready(function() {
     }
 
     /**
-     * Показать уведомление
-     * @param {string} message - Сообщение
-     * @param {'success'|'error'} type - Тип уведомления
+     * @param {string} message
+     * @param {'success'|'error'} type
      * @returns {void}
      */
     function showToast(message, type) {
@@ -196,8 +193,7 @@ $(document).ready(function() {
     }
 
     /**
-     * Экранирование HTML
-     * @param {string} text - Текст для экранирования
+     * @param {string} text
      * @returns {string}
      */
     function escapeHtml(text) {
@@ -212,7 +208,6 @@ $(document).ready(function() {
     }
 
     /**
-     * Загрузить список лендингов
      * @returns {void}
      */
     function loadLandings() {
@@ -243,9 +238,8 @@ $(document).ready(function() {
     }
 
     /**
-     * Загрузить список РК для выбранного лендинга
-     * @param {number} landingId - ID лендинга
-     * @param {number|null} selectEntryId - ID записи для автоматического выбора (опционально)
+     * @param {number} landingId
+     * @param {number|null} selectEntryId
      * @returns {void}
      */
     function loadRkList(landingId, selectEntryId) {
@@ -274,9 +268,8 @@ $(document).ready(function() {
     }
 
     /**
-     * Рендер select РК
-     * @param {Array} campaigns - Список кампаний
-     * @param {number|null} selectEntryId - ID записи для автоматического выбора (опционально)
+     * @param {Array} campaigns
+     * @param {number|null} selectEntryId
      * @returns {void}
      */
     function renderRkSelect(campaigns, selectEntryId) {
@@ -300,8 +293,7 @@ $(document).ready(function() {
         campaigns.forEach(function(rk) {
             $select.append('<option value="' + rk.id + '">' + escapeHtml(rk.rk_name || '(без названия)') + '</option>');
         });
-        
-        // Автоматический выбор указанной записи
+
         if (selectEntryId !== null) {
             $select.val(selectEntryId);
             loadEntryData(selectEntryId);
@@ -311,8 +303,7 @@ $(document).ready(function() {
     }
 
     /**
-     * Загрузить данные записи РК
-     * @param {number} entryId - ID записи
+     * @param {number} entryId
      * @returns {void}
      */
     function loadEntryData(entryId) {
@@ -339,8 +330,7 @@ $(document).ready(function() {
     }
 
     /**
-     * Рендер полей для редактирования
-     * @param {Object} data - Данные записи
+     * @param {Object} data
      * @returns {void}
      */
     function renderFields(data) {
@@ -373,7 +363,7 @@ $(document).ready(function() {
                             'class="save-btn btn-icon px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-sm shadow-sm hover:shadow transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed" ' +
                             'data-field="' + fieldName + '"' +
                         '>' +
-                            '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>' +
+                            '<svg class="w-4 h-4 group-hover:rotate-12 transition-transform" fill="#fff" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 407.096 407.096" xml:space="preserve" stroke="#fff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g> <g> <path d="M402.115,84.008L323.088,4.981C319.899,1.792,315.574,0,311.063,0H17.005C7.613,0,0,7.614,0,17.005v373.086 c0,9.392,7.613,17.005,17.005,17.005h373.086c9.392,0,17.005-7.613,17.005-17.005V96.032 C407.096,91.523,405.305,87.197,402.115,84.008z M300.664,163.567H67.129V38.862h233.535V163.567z"></path> <path d="M214.051,148.16h43.08c3.131,0,5.668-2.538,5.668-5.669V59.584c0-3.13-2.537-5.668-5.668-5.668h-43.08 c-3.131,0-5.668,2.538-5.668,5.668v82.907C208.383,145.622,210.92,148.16,214.051,148.16z"></path> </g> </g> </g></svg>' +
                             'Сохранить' +
                         '</button>' +
                         '<button ' +
@@ -401,9 +391,8 @@ $(document).ready(function() {
     }
 
     /**
-     * Сохранить поле
-     * @param {string} fieldName - Имя поля
-     * @param {string} value - Значение
+     * @param {string} fieldName
+     * @param {string} value
      * @returns {void}
      */
     function saveField(fieldName, value) {
@@ -435,9 +424,8 @@ $(document).ready(function() {
         });
     }
 
-/**
-     * Генерация AI текста
-     * @param {string} fieldName - Имя поля
+     /**
+     * @param {string} fieldName
      * @returns {void}
      */
     function generateAI(fieldName) {
@@ -448,8 +436,7 @@ $(document).ready(function() {
 
         const $btn = $('.ai-btn[data-field="' + fieldName + '"]');
         const originalContent = $btn.html();
-        
-        // Показываем локальный лоадер на кнопке
+
         $btn.prop('disabled', true).html(
             '<svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">' +
             '<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>' +
@@ -486,11 +473,8 @@ $(document).ready(function() {
         });
     }
 
-
-    // Обработчик изменения выбора лендинга
     $('#landing-select').on('change', function() {
         const landingId = $(this).val();
-        
         if (!landingId) {
             currentLandingId = null;
             currentEntryId = null;
@@ -517,7 +501,6 @@ $(document).ready(function() {
         loadRkList(currentLandingId, null);
     });
 
-    // Обработчик изменения выбора РК
     $('#rk-select').on('change', function() {
         const entryId = $(this).val();
         
@@ -536,7 +519,6 @@ $(document).ready(function() {
         loadEntryData(currentEntryId);
     });
 
-    // Открытие формы добавления РК
     $('#add-rk-btn').on('click', function() {
         $('#rk-form-container').toggleClass('hidden');
         if (!$('#rk-form-container').hasClass('hidden')) {
@@ -544,13 +526,11 @@ $(document).ready(function() {
         }
     });
 
-    // Отмена добавления РК
     $('#cancel-new-rk-btn').on('click', function() {
         $('#rk-form-container').addClass('hidden');
         $('#new-rk-name').val('');
     });
 
-    // Сохранение новой РК
     $('#save-new-rk-btn').on('click', function() {
         const rkName = $('#new-rk-name').val().trim();
         if (!rkName) {
@@ -578,7 +558,7 @@ $(document).ready(function() {
                     showToast('РК создана', 'success');
                     $('#new-rk-name').val('');
                     $('#rk-form-container').addClass('hidden');
-                    // Автоматически выбираем созданную РК
+
                     currentEntryId = parseInt(response.entry_id);
                     loadRkList(currentLandingId, currentEntryId);
                 } else {
@@ -594,7 +574,6 @@ $(document).ready(function() {
         });
     });
 
-    // Удаление РК
     $('#delete-rk-btn').on('click', function() {
         if (!currentEntryId) {
             showToast('Выберите РК для удаления', 'error');
@@ -633,20 +612,17 @@ $(document).ready(function() {
         });
     });
 
-    // Сохранение поля
     $(document).on('click', '.save-btn', function() {
         const fieldName = $(this).data('field');
         const value = $('#field-' + fieldName).val();
         saveField(fieldName, value);
     });
 
-    // Генерация AI
     $(document).on('click', '.ai-btn', function() {
         const fieldName = $(this).data('field');
         generateAI(fieldName);
     });
 
-    // Применение AI
     $(document).on('click', '.apply-btn', function() {
         const fieldName = $(this).data('field');
         const $preview = $('#preview-' + fieldName);
@@ -658,13 +634,10 @@ $(document).ready(function() {
         showToast('Текст применён', 'success');
     });
 
-    // Отмена AI
     $(document).on('click', '.cancel-btn', function() {
         const fieldName = $(this).data('field');
         $('#preview-' + fieldName).removeClass('active');
     });
-
-    // Инициализация
     loadLandings();
 });
 </script>

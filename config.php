@@ -7,31 +7,47 @@ define('DB_NAME', 'landings_db');
 define('DB_USER', 'root');
 define('DB_PASS', 'root');
 
-// Конфигурация полей для редактирования (кроме rk_name, которое выбирается отдельно)
 $fieldConfig = [
+    'landing_motive' => [
+        'label' => 'Тематика ленгинга',
+        'type' => 'textarea',
+        'rows' => 2,
+        'placeholder' => 'Введите тематику ленгинга...'
+    ],
     'title' => [
         'label' => 'Заголовок (Title)',
         'type' => 'textarea',
         'rows' => 2,
         'placeholder' => 'Введите заголовок страницы...'
     ],
-    'description' => [
+    'lid' => [
         'label' => 'Описание (Description)',
         'type' => 'textarea',
         'rows' => 4,
         'placeholder' => 'Введите описание страницы...'
     ],
-    'keywords' => [
-        'label' => 'Ключевые слова (Keywords)',
+    'button_text' => [
+        'label' => 'Текст на кнопке',
         'type' => 'textarea',
         'rows' => 3,
-        'placeholder' => 'Введите ключевые слова через запятую...'
+        'placeholder' => 'Текст на кнопке...'
     ],
-    'h1' => [
-        'label' => 'Заголовок H1',
+    'oz_title' => [
+        'label' => 'Заголовок формы',
         'type' => 'textarea',
         'rows' => 2,
-        'placeholder' => 'Введите главный заголовок H1...'
+        'placeholder' => 'Введите Заголовок формы...'
+    ],
+    'mag_comment' => [
+        'label' => 'Коммент в форме (скрытый)',
+        'type' => 'textarea',
+        'rows' => 2,
+        'placeholder' => 'Введите коммент в форме...'
+    ],
+    'img_path' => [
+        'label' => 'Путь к изображению',
+        'type' => 'input',
+        'placeholder' => 'Введите путь к изображению...'
     ]
 ];
 

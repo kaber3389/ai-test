@@ -13,13 +13,10 @@ if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/config.php';
 
-// ============================================================
-// NEUROAPI CONFIGURATION
-// ============================================================
-define('NEUROAPI_KEY', 'sk-NireE2orzRrRR4QdlSZGwKXD3pJQUJjy4zbKZU5PjAeYDGc0');
+define('NEUROAPI_KEY', 'sk-nUHv8HRYhJYImjpn8QzJIw6X6HOzT21l5Y2snIy5KxNi3PlU');
 define('NEUROAPI_BASE_URL', 'https://neuroapi.host/v1');
-define('NEUROAPI_MODEL', 'gpt-5.2');
-define('REQUEST_TIMEOUT', 30);
+define('NEUROAPI_MODEL', 'claude-opus-4-6');
+define('REQUEST_TIMEOUT', 300);
 
 header('Content-Type: application/json; charset=utf-8');
 
@@ -59,8 +56,6 @@ switch ($action) {
 }
 
 /**
- * Получить список всех лендингов
- * 
  * @param PDO $pdo
  * @return void
  */
@@ -82,8 +77,6 @@ function getLandings(PDO $pdo): void {
 }
 
 /**
- * Получить список РК для выбранного лендинга
- * 
  * @param PDO $pdo
  * @return void
  */
@@ -113,8 +106,6 @@ function getRkList(PDO $pdo): void {
 }
 
 /**
- * Получить данные записи РК
- * 
  * @param PDO $pdo
  * @return void
  */
@@ -160,8 +151,6 @@ function getEntryData(PDO $pdo): void {
 }
 
 /**
- * Сохранить значение поля
- * 
  * @param PDO $pdo
  * @return void
  */
@@ -203,8 +192,6 @@ function saveField(PDO $pdo): void {
 }
 
 /**
- * Сгенерировать AI текст через NeuroAPI
- * 
  * @return void
  */
 function generateAI(): void {
@@ -227,14 +214,13 @@ function generateAI(): void {
         echo json_encode(['success' => false, 'error' => 'Не указан ID записи']);
         return;
     }
-    
-    // Получаем контекст: landing_name и rk_name
+
     $landingName = '';
-    $rkName = '';
-    
+    $landingMotive = null;
+
     try {
         $stmt = $pdo->prepare("
-            SELECT l.landing_name, lr.rk_name 
+            SELECT l.landing_name, lr.landing_motive 
             FROM landings_rk lr 
             JOIN landings l ON lr.landing_id = l.id 
             WHERE lr.id = :id
@@ -244,17 +230,14 @@ function generateAI(): void {
         
         if ($context) {
             $landingName = $context['landing_name'];
-            $rkName = $context['rk_name'];
+            $landingMotive = $context['landing_motive'];
         }
     } catch (PDOException $e) {
-        echo json_encode(['success' => false, 'error' => 'Ошибка получения контекста']);
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
         return;
     }
-    
-    // Формируем промпт с контекстом
-    $prompt = buildPrompt($fieldName, $landingName, $rkName);
-    
-    // Делаем запрос к NeuroAPI
+
+    $prompt = buildPrompt($fieldName, $landingName, $landingMotive);
     $generatedText = callNeuroAPI($prompt);
     
     if ($generatedText === null) {
@@ -269,54 +252,68 @@ function generateAI(): void {
 }
 
 /**
- * Построить промпт для генерации контента
- * 
- * @param string $fieldName - Имя поля
- * @param string $landingName - Название лендинга
- * @param string $rkName - Название рекламной кампании
+ * @param string $fieldName
+ * @param string $landingName
+ * @param ?string $landingMotive
  * @return string
  */
-function buildPrompt(string $fieldName, string $landingName, string $rkName): string {
+function buildPrompt(string $fieldName, string $landingName, ?string $landingMotive = null): string {
     $contextParts = [];
     
     if ($landingName) {
         $contextParts[] = "лендинг \"{$landingName}\"";
     }
-    
-    if ($rkName) {
-        $contextParts[] = "рекламная кампания \"{$rkName}\"";
+
+    if ($landingMotive) {
+        $contextParts[] = "Мотив лендинга: \"{$landingMotive}\"";
     }
     
     $context = !empty($contextParts) 
         ? " с учетом тематики " . implode(' и ', $contextParts)
         : '';
-    
+
     $prompts = [
-        'title' => "Ты — профессиональный SEO-маркетолог. Напиши meta title (заголовок страницы) для{$context}. " .
-            "Заголовок должен быть до 60 символов, содержать ключевые слова и привлекать клики. " .
-            "Ответ возвращай только текстом заголовка без кавычек и дополнительного форматирования.",
-        
-        'description' => "Ты — профессиональный SEO-маркетолог. Напиши meta description (описание страницы) для{$context}. " .
-            "Описание должно быть до 160 символов, содержать призыв к действию и ключевые слова. " .
-            "Ответ возвращай только текстом описания без кавычек и дополнительного форматирования.",
-        
-        'keywords' => "Ты — профессиональный SEO-маркетолог. Подбери ключевые слова (keywords) для{$context}. " .
-            "Слова должны быть релевантными тематике, перечисли их через запятую (5-10 слов). " .
-            "Ответ возвращай только списком слов через запятую без кавычек и дополнительного форматирования.",
-        
-        'h1' => "Ты — профессиональный маркетолог. Напиши главный заголовок H1 для{$context}. " .
-            "Заголовок должен быть кратким (до 50 символов), цепляющим и отражать суть предложения. " .
-            "Ответ возвращай только текстом заголовка без кавычек и дополнительного форматирования."
+        'title' => "Ты — маркетолог справочной системы Кадры. Твоя задача: составить заголовок рекламного объявления для темы: {$context}.\n" .
+            "ПРАВИЛА:\n" .
+            "1. Длина строго до 56 символов с пробелами.\n" .
+            "2. Структура: [Что ищет клиент] + [сообщение, что это есть в Системе Кадры].\n" .
+            "3. Используй конструкцию «есть в Системе Кадры» или «в Системе Кадры», соблюдая грамматику.\n" .
+            "ПРИМЕР: Образцы локальных актов есть в Системе Кадры.\n" .
+            "Ответ возвращай только текстом заголовка без кавычек.",
+
+        'lid' => "Ты — маркетолог справочной системы Кадры. Напиши текст объявления (лид) для темы: {$context}.\n" .
+            "ПРАВИЛА:\n" .
+            "1. Длина строго до 81 символа с пробелами.\n" .
+            "2. Это должна быть продающая фраза: что именно ценное получит кадровик для своей работы (решение, безопасность, экономия времени).\n" .
+            "Ответ возвращай только текстом без кавычек.",
+
+        'button_text' => "Ты — эксперт по лидогенерации. Напиши текст для кнопки призыва к действию (CTA) на лендинге по теме: {$context}.\n" .
+            "ПРАВИЛА:\n" .
+            "1. Текст должен быть коротким (2-4 слова).\n" .
+            "2. Используй сильные глаголы: Скачать, Получить, Забрать, Узнать.\n" .
+            "ПРИМЕР: Получить бесплатный доступ, Скачать пакет образцов.\n" .
+            "Ответ возвращай только текстом кнопки.",
+
+        'oz_title' => "Ты — маркетолог. Напиши короткий заголовок для формы захвата (над полями ввода данных) для темы: {$context}.\n" .
+            "ПРАВИЛА:\n" .
+            "1. Заголовок должен пояснять, что получит пользователь после заполнения формы.\n" .
+            "2. Лаконичность и выгода.\n" .
+            "ПРИМЕР: Доступ на 10 дней + образцы.\n" .
+            "Ответ возвращай только текстом без кавычек.",
+
+        'mag_comment' => "Ты — руководитель отдела продаж. Напиши краткий скрипт (1-2 предложения) для менеджера, который будет звонить по заявке на тему: {$context}.\n" .
+            "ПРАВИЛА:\n" .
+            "1. Упомяни, что клиент искал конкретные материалы.\n" .
+            "2. Предложи открыть бесплатный доступ или сделать скидку на подписку.\n" .
+            "Ответ возвращай только текстом комментария."
     ];
     
     return $prompts[$fieldName] ?? "Напиши текст для поля {$fieldName}.";
 }
 
 /**
- * Вызов NeuroAPI через cURL
- * 
- * @param string $prompt - Текст промпта
- * @return string|null - Сгенерированный текст или null при ошибке
+ * @param string $prompt
+ * @return string|null
  */
 function callNeuroAPI(string $prompt): ?string {
     $url = NEUROAPI_BASE_URL . '/chat/completions';
@@ -328,11 +325,9 @@ function callNeuroAPI(string $prompt): ?string {
                 'role' => 'user',
                 'content' => $prompt
             ]
-        ],
-        'temperature' => 0.7,
-        'max_tokens' => 200
+        ]
     ];
-    
+
     $ch = curl_init($url);
     
     if ($ch === false) {
@@ -344,15 +339,13 @@ function callNeuroAPI(string $prompt): ?string {
         'Content-Type: application/json',
         'Authorization: Bearer ' . NEUROAPI_KEY
     ];
-    
+
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_POST => true,
         CURLOPT_HTTPHEADER => $headers,
         CURLOPT_POSTFIELDS => json_encode($data, JSON_UNESCAPED_UNICODE),
         CURLOPT_TIMEOUT => REQUEST_TIMEOUT,
-        CURLOPT_SSL_VERIFYPEER => true,
-        CURLOPT_SSL_VERIFYHOST => 2
     ]);
     
     $response = curl_exec($ch);
@@ -360,12 +353,12 @@ function callNeuroAPI(string $prompt): ?string {
     $error = curl_error($ch);
     
     curl_close($ch);
-    
+
     if ($response === false || $error) {
         error_log('cURL error: ' . $error);
         return null;
     }
-    
+
     if ($httpCode !== 200) {
         error_log('NeuroAPI HTTP error: ' . $httpCode . ' Response: ' . $response);
         return null;
@@ -379,8 +372,7 @@ function callNeuroAPI(string $prompt): ?string {
     }
     
     $text = trim($result['choices'][0]['message']['content']);
-    
-    // Очищаем от возможных markdown-обёрток
+
     $text = preg_replace('/^```(?:json)?\s*/', '', $text);
     $text = preg_replace('/\s*```$/', '', $text);
     
@@ -388,8 +380,6 @@ function callNeuroAPI(string $prompt): ?string {
 }
 
 /**
- * Создать новую запись РК
- * 
  * @param PDO $pdo
  * @return void
  */
@@ -430,8 +420,6 @@ function createRkEntry(PDO $pdo): void {
 }
 
 /**
- * Удалить запись РК
- * 
  * @param PDO $pdo
  * @return void
  */

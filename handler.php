@@ -34,6 +34,18 @@ switch ($action) {
         generateAI();
         break;
     
+    case 'get_rk_campaigns':
+        getRkCampaigns($pdo);
+        break;
+    
+    case 'create_rk_campaign':
+        createRkCampaign($pdo);
+        break;
+    
+    case 'delete_rk_campaign':
+        deleteRkCampaign($pdo);
+        break;
+    
     default:
         echo json_encode(['success' => false, 'error' => 'Неизвестное действие']);
 }
@@ -187,4 +199,81 @@ function generateMockAIText(string $fieldName, string $currentValue): string {
     }
     
     return 'Сгенерированный текст для поля ' . $fieldName;
+}
+
+function getRkCampaigns(PDO $pdo): void {
+    $landingId = $_POST['landing_id'] ?? null;
+    
+    if (!$landingId) {
+        echo json_encode(['success' => false, 'error' => 'Не указан ID лендинга']);
+        return;
+    }
+    
+    try {
+        $stmt = $pdo->prepare("SELECT id, rk_name FROM rk_campaigns WHERE landing_id = :landing_id ORDER BY rk_name ASC");
+        $stmt->execute(['landing_id' => $landingId]);
+        $campaigns = $stmt->fetchAll();
+        
+        echo json_encode([
+            'success' => true,
+            'data' => $campaigns
+        ]);
+    } catch (PDOException $e) {
+        echo json_encode([
+            'success' => false,
+            'error' => 'Ошибка базы данных: ' . $e->getMessage()
+        ]);
+    }
+}
+
+function createRkCampaign(PDO $pdo): void {
+    $landingId = $_POST['landing_id'] ?? null;
+    $rkName = $_POST['rk_name'] ?? null;
+    
+    if (!$landingId || !$rkName) {
+        echo json_encode(['success' => false, 'error' => 'Не указаны необходимые параметры']);
+        return;
+    }
+    
+    try {
+        $stmt = $pdo->prepare("INSERT INTO rk_campaigns (landing_id, rk_name) VALUES (:landing_id, :rk_name)");
+        $stmt->execute([
+            'landing_id' => $landingId,
+            'rk_name' => $rkName
+        ]);
+        
+        echo json_encode([
+            'success' => true,
+            'message' => 'Рекламная кампания успешно создана'
+        ]);
+    } catch (PDOException $e) {
+        echo json_encode([
+            'success' => false,
+            'error' => 'Ошибка базы данных: ' . $e->getMessage()
+        ]);
+    }
+}
+
+function deleteRkCampaign(PDO $pdo): void {
+    $rkId = $_POST['rk_id'] ?? null;
+    
+    if (!$rkId) {
+        echo json_encode(['success' => false, 'error' => 'Не указан ID РК']);
+        return;
+    }
+    
+    try {
+        $stmt = $pdo->prepare("DELETE FROM rk_campaigns WHERE id = :id");
+        $stmt->execute(['id' => $rkId]);
+        
+        echo json_encode([
+            'success' => true,
+            'message' => 'Рекламная кампания успешно удалена'
+        ]);
+    } catch (PDOException $e) {
+        echo json_encode([
+            'success' => false,
+            'error' => 'Ошибка базы данных: ' . $e->getMessage()
+        ]);
+    }
 }

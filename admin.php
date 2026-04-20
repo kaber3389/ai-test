@@ -30,6 +30,9 @@ require_once __DIR__ . '/config.php';
         .ai-gradient:hover { background: linear-gradient(135deg, #4f46e5 0%, #9333ea 100%); }
         .ai-preview { display: none; }
         .ai-preview.active { display: block; }
+        .rk-item { cursor: pointer; }
+        .rk-item:hover { background-color: #f1f5f9; }
+        .rk-item.selected { background-color: #e0e7ff; border-color: #6366f1; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen">
@@ -72,6 +75,33 @@ require_once __DIR__ . '/config.php';
                     </select>
                     <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
                         <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                    </div>
+                </div>
+                
+                <div id="rk-section" class="mt-6 hidden">
+                    <div class="flex justify-between items-center mb-3">
+                        <label class="block text-sm font-semibold text-slate-700">Рекламные кампании (RK)</label>
+                        <button id="add-rk-btn" class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                            Добавить RK
+                        </button>
+                    </div>
+                    <div id="rk-list" class="space-y-2 max-h-48 overflow-y-auto border border-slate-200 rounded-lg p-2 bg-white">
+                        <div class="text-center py-4 text-slate-400 text-sm">
+                            Нет рекламных кампаний для этого лендинга
+                        </div>
+                    </div>
+                    
+                    <div id="rk-form-container" class="hidden mt-4 p-4 bg-slate-50 border border-slate-200 rounded-lg">
+                        <input type="text" id="new-rk-name" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm" placeholder="Название новой рекламной кампании...">
+                        <div class="flex gap-2 mt-3">
+                            <button id="save-new-rk-btn" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-colors">
+                                Сохранить
+                            </button>
+                            <button id="cancel-new-rk-btn" class="px-4 py-2 bg-white hover:bg-slate-100 text-slate-600 border border-slate-300 text-sm font-medium rounded-lg transition-colors">
+                                Отмена
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -180,6 +210,8 @@ require_once __DIR__ . '/config.php';
                 success: function(response) {
                     if (response.success) {
                         renderFields(response.data);
+                        loadRkCampaigns(landingId);
+                        $('#rk-section').removeClass('hidden');
                     } else {
                         showToast('Ошибка загрузки данных лендинга', 'error');
                     }
@@ -390,6 +422,133 @@ require_once __DIR__ . '/config.php';
         $(document).on('click', '.cancel-btn', function() {
             const fieldName = $(this).data('field');
             $('#preview-' + fieldName).removeClass('active');
+        });
+
+        /** @returns {void} */
+        function loadRkCampaigns(landingId) {
+            showSpinner();
+            $.ajax({
+                url: 'handler.php',
+                method: 'POST',
+                data: { action: 'get_rk_campaigns', landing_id: landingId },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        renderRkList(response.data);
+                    } else {
+                        showToast('Ошибка загрузки RK', 'error');
+                    }
+                },
+                error: function() {
+                    showToast('Ошибка сервера', 'error');
+                },
+                complete: function() {
+                    hideSpinner();
+                }
+            });
+        }
+
+        /**
+         * @param {Array} campaigns 
+         * @returns {void}
+         */
+        function renderRkList(campaigns) {
+            const $list = $('#rk-list');
+            $list.empty();
+            
+            if (campaigns.length === 0) {
+                $list.html('<div class="text-center py-4 text-slate-400 text-sm">Нет рекламных кампаний для этого лендинга</div>');
+                return;
+            }
+            
+            campaigns.forEach(function(rk) {
+                const rkItem = $(`
+                    <div class="rk-item p-3 rounded-lg border border-slate-200 flex justify-between items-center transition-colors" data-rk-id="${rk.id}">
+                        <span class="text-sm font-medium text-slate-700">${escapeHtml(rk.rk_name)}</span>
+                        <button class="delete-rk-btn p-1 text-slate-400 hover:text-red-500 transition-colors" title="Удалить">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
+                    </div>
+                `);
+                $list.append(rkItem);
+            });
+        }
+
+        $('#add-rk-btn').on('click', function() {
+            $('#rk-form-container').removeClass('hidden');
+            $('#new-rk-name').focus();
+        });
+
+        $('#cancel-new-rk-btn').on('click', function() {
+            $('#rk-form-container').addClass('hidden');
+            $('#new-rk-name').val('');
+        });
+
+        $('#save-new-rk-btn').on('click', function() {
+            const rkName = $('#new-rk-name').val().trim();
+            if (!rkName) {
+                showToast('Введите название РК', 'error');
+                return;
+            }
+            
+            showSpinner();
+            $.ajax({
+                url: 'handler.php',
+                method: 'POST',
+                data: { 
+                    action: 'create_rk_campaign', 
+                    landing_id: currentLandingId,
+                    rk_name: rkName 
+                },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        showToast('РК создана', 'success');
+                        $('#new-rk-name').val('');
+                        $('#rk-form-container').addClass('hidden');
+                        loadRkCampaigns(currentLandingId);
+                    } else {
+                        showToast(response.error || 'Ошибка создания РК', 'error');
+                    }
+                },
+                error: function() {
+                    showToast('Ошибка сервера', 'error');
+                },
+                complete: function() {
+                    hideSpinner();
+                }
+            });
+        });
+
+        $(document).on('click', '.delete-rk-btn', function() {
+            const $item = $(this).closest('.rk-item');
+            const rkId = $item.data('rk-id');
+            
+            if (!confirm('Вы уверены, что хотите удалить эту рекламную кампанию?')) {
+                return;
+            }
+            
+            showSpinner();
+            $.ajax({
+                url: 'handler.php',
+                method: 'POST',
+                data: { action: 'delete_rk_campaign', rk_id: rkId },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        showToast('РК удалена', 'success');
+                        loadRkCampaigns(currentLandingId);
+                    } else {
+                        showToast(response.error || 'Ошибка удаления РК', 'error');
+                    }
+                },
+                error: function() {
+                    showToast('Ошибка сервера', 'error');
+                },
+                complete: function() {
+                    hideSpinner();
+                }
+            });
         });
 
         loadLandings();

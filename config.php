@@ -5,7 +5,7 @@ declare(strict_types=1);
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'landings_db');
 define('DB_USER', 'root');
-define('DB_PASS', '');
+define('DB_PASS', 'root');
 
 $fieldConfig = [
     'title' => [

@@ -223,28 +223,32 @@ function generateAI(): void {
         return;
     }
     
+    if (!$entryId) {
+        echo json_encode(['success' => false, 'error' => 'Не указан ID записи']);
+        return;
+    }
+    
     // Получаем контекст: landing_name и rk_name
     $landingName = '';
     $rkName = '';
     
-    if ($entryId) {
-        try {
-            $stmt = $pdo->prepare("
-                SELECT l.landing_name, lr.rk_name 
-                FROM landings_rk lr 
-                JOIN landings l ON lr.landing_id = l.id 
-                WHERE lr.id = :id
-            ");
-            $stmt->execute(['id' => $entryId]);
-            $context = $stmt->fetch();
-            
-            if ($context) {
-                $landingName = $context['landing_name'];
-                $rkName = $context['rk_name'];
-            }
-        } catch (PDOException $e) {
-            // Игнорируем ошибку, контекст будет пустым
+    try {
+        $stmt = $pdo->prepare("
+            SELECT l.landing_name, lr.rk_name 
+            FROM landings_rk lr 
+            JOIN landings l ON lr.landing_id = l.id 
+            WHERE lr.id = :id
+        ");
+        $stmt->execute(['id' => $entryId]);
+        $context = $stmt->fetch();
+        
+        if ($context) {
+            $landingName = $context['landing_name'];
+            $rkName = $context['rk_name'];
         }
+    } catch (PDOException $e) {
+        echo json_encode(['success' => false, 'error' => 'Ошибка получения контекста']);
+        return;
     }
     
     // Формируем промпт с контекстом

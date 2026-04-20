@@ -251,9 +251,12 @@ $(document).ready(function() {
     /**
      * Загрузить список РК для выбранного лендинга
      * @param {number} landingId - ID лендинга
+     * @param {number|null} selectEntryId - ID записи для автоматического выбора (опционально)
      * @returns {void}
      */
-    function loadRkList(landingId) {
+    function loadRkList(landingId, selectEntryId) {
+        if (selectEntryId === undefined) selectEntryId = null;
+        
         showSpinner();
         $.ajax({
             url: 'handler.php',
@@ -262,7 +265,7 @@ $(document).ready(function() {
             dataType: 'json',
             success: function(response) {
                 if (response.success) {
-                    renderRkSelect(response.data);
+                    renderRkSelect(response.data, selectEntryId);
                 } else {
                     showToast('Ошибка загрузки РК', 'error');
                 }
@@ -279,9 +282,12 @@ $(document).ready(function() {
     /**
      * Рендер select РК
      * @param {Array} campaigns - Список кампаний
+     * @param {number|null} selectEntryId - ID записи для автоматического выбора (опционально)
      * @returns {void}
      */
-    function renderRkSelect(campaigns) {
+    function renderRkSelect(campaigns, selectEntryId) {
+        if (selectEntryId === undefined) selectEntryId = null;
+        
         const $select = $('#rk-select');
         $select.empty().append('<option value="">-- Выберите РК --</option>');
 
@@ -300,6 +306,13 @@ $(document).ready(function() {
         campaigns.forEach(function(rk) {
             $select.append('<option value="' + rk.id + '">' + escapeHtml(rk.rk_name || '(без названия)') + '</option>');
         });
+        
+        // Автоматический выбор указанной записи
+        if (selectEntryId !== null) {
+            $select.val(selectEntryId);
+            loadEntryData(selectEntryId);
+        }
+        
         $('#delete-rk-btn').removeClass('hidden');
     }
 
@@ -484,8 +497,15 @@ $(document).ready(function() {
 
         currentLandingId = parseInt(landingId);
         currentEntryId = null;
+        $('#rk-select').val('');
+        $('#fields-container').html(
+            '<div class="text-center py-12 text-slate-400">' +
+                '<svg class="mx-auto h-12 w-12 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>' +
+                '<p class="mt-2 text-sm">Выберите РК из списка выше</p>' +
+            '</div>'
+        );
         $('#rk-section').removeClass('hidden');
-        loadRkList(currentLandingId);
+        loadRkList(currentLandingId, null);
     });
 
     // Обработчик изменения выбора РК
@@ -549,11 +569,9 @@ $(document).ready(function() {
                     showToast('РК создана', 'success');
                     $('#new-rk-name').val('');
                     $('#rk-form-container').addClass('hidden');
-                    loadRkList(currentLandingId);
                     // Автоматически выбираем созданную РК
                     currentEntryId = parseInt(response.entry_id);
-                    $('#rk-select').val(currentEntryId);
-                    loadEntryData(currentEntryId);
+                    loadRkList(currentLandingId, currentEntryId);
                 } else {
                     showToast(response.error || 'Ошибка создания РК', 'error');
                 }
@@ -592,7 +610,7 @@ $(document).ready(function() {
                     showToast('Запись удалена', 'success');
                     currentEntryId = null;
                     $('#rk-select').val('');
-                    loadRkList(currentLandingId);
+                    loadRkList(currentLandingId, null);
                 } else {
                     showToast(response.error || 'Ошибка удаления', 'error');
                 }

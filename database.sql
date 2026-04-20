@@ -1,11 +1,6 @@
--- SQL-скрипт для создания структуры БД (Parent-Child)
--- Выполните этот скрипт в вашей базе данных
-
 CREATE DATABASE IF NOT EXISTS landings_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
 USE landings_db;
 
--- Таблица лендингов (родительская)
 CREATE TABLE IF NOT EXISTS landings (
     id INT AUTO_INCREMENT PRIMARY KEY,
     landing_name VARCHAR(255) NOT NULL COMMENT 'Название лендинга',
@@ -15,31 +10,31 @@ CREATE TABLE IF NOT EXISTS landings (
     INDEX idx_landing_name (landing_name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Таблица рекламных кампаний (дочерняя, связана с landings через FK)
 CREATE TABLE IF NOT EXISTS landings_rk (
     id INT AUTO_INCREMENT PRIMARY KEY,
     landing_id INT NOT NULL COMMENT 'ID лендинга (FK)',
-    rk_name VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Название рекламной кампании',
-    title VARCHAR(255) DEFAULT '' COMMENT 'Meta title',
-    description TEXT DEFAULT '' COMMENT 'Meta description',
-    keywords TEXT DEFAULT '' COMMENT 'Meta keywords',
-    h1 VARCHAR(255) DEFAULT '' COMMENT 'Заголовок H1',
+    rk_name VARCHAR(255) NOT NULL COMMENT 'Название рекламной кампании',
+    title VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Meta title',
+
+    description TEXT NULL COMMENT 'Meta description',
+    keywords TEXT NULL COMMENT 'Meta keywords',
+
+    h1 VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Заголовок H1',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
     CONSTRAINT fk_landing FOREIGN KEY (landing_id) REFERENCES landings(id) ON DELETE CASCADE,
     UNIQUE KEY unique_landing_rk (landing_id, rk_name),
     INDEX idx_landing_id (landing_id),
     INDEX idx_rk_name (rk_name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Тестовые данные - лендинги
 INSERT INTO landings (landing_name) VALUES
 ('Главная страница'),
 ('Лендинг продукта А'),
 ('Услуги компании'),
 ('Контакты');
 
--- Тестовые данные - РК для лендингов
 INSERT INTO landings_rk (landing_id, rk_name, title, description, keywords, h1) VALUES
 (1, '', 'Добро пожаловать в нашу компанию', 'Мы предоставляем лучшие услуги на рынке', 'компания, услуги, качество', 'Добро пожаловать'),
 (1, 'Весеннее предложение 2024', 'Весенняя акция - скидки до 50%', 'Успейте воспользоваться выгодными предложениями', 'акция, скидка, весна, предложение', 'Весеннее предложение'),

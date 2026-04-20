@@ -77,57 +77,33 @@ require_once __DIR__ . '/config.php';
             </div>
 
             <div id="rk-section" class="p-6 sm:p-8 border-t border-slate-100 bg-slate-50/50 hidden">
-                <div class="flex justify-between items-center mb-3">
-                    <label class="block text-sm font-semibold text-slate-700">Рекламные кампании (RK)</label>
-                    <button id="add-rk-btn" class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors">
-                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                        Добавить RK
-                    </button>
-                </div>
-                
-                <!-- Select для выбора существующего RK -->
-                <div id="rk-select-container" class="mb-3 hidden">
-                    <label for="rk-select" class="block text-sm font-medium text-slate-600 mb-2">Выберите или добавьте РК:</label>
-                    <div class="flex gap-2">
-                        <div class="relative flex-1">
+                <div class="flex items-end gap-3 mb-4">
+                    <div class="flex-1">
+                        <label for="rk-select" class="block text-sm font-semibold text-slate-700 mb-2">Рекламная кампания</label>
+                        <div class="relative">
                             <select 
                                 id="rk-select" 
-                                class="block w-full pl-3 pr-10 py-2 text-sm border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 rounded-lg shadow-sm transition-shadow cursor-pointer"
+                                class="block w-full pl-4 pr-10 py-3 text-base border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-xl shadow-sm transition-shadow cursor-pointer"
                             >
                                 <option value="">-- Выберите РК --</option>
                             </select>
                             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
-                                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                                <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
                             </div>
                         </div>
-                        <button id="select-rk-btn" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-colors">
-                            Выбрать
-                        </button>
                     </div>
+                    <button id="add-rk-btn" class="inline-flex items-center px-4 py-3 text-sm font-medium text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition-colors whitespace-nowrap">
+                        <svg class="w-5 h-5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        Добавить
+                    </button>
                 </div>
                 
-                <div id="rk-list" class="space-y-2 max-h-48 overflow-y-auto border border-slate-200 rounded-lg p-2 bg-white">
-                    <div class="text-center py-4 text-slate-400 text-sm">
-                        Нет рекламных кампаний для этого лендинга
-                    </div>
-                </div>
-
+                <!-- Форма для добавления новой РК -->
                 <div id="rk-form-container" class="hidden mt-4 p-4 bg-white border border-slate-200 rounded-lg">
-                    <label for="new-rk-name" class="block text-sm font-medium text-slate-600 mb-2">Новая РК или выберите из списка:</label>
-                    <input type="text" id="new-rk-name" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm mb-2" placeholder="Введите название новой рекламной кампании...">
+                    <label for="new-rk-name" class="block text-sm font-medium text-slate-600 mb-2">Название новой рекламной кампании</label>
+                    <input type="text" id="new-rk-name" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm mb-3" placeholder="Введите название РК...">
                     
-                    <!-- Select для выбора существующего RK при добавлении -->
-                    <div class="mb-2">
-                        <label for="existing-rk-select" class="block text-xs font-medium text-slate-500 mb-1">Или выберите существующую:</label>
-                        <select 
-                            id="existing-rk-select" 
-                            class="block w-full pl-3 pr-10 py-2 text-sm border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 rounded-lg"
-                        >
-                            <option value="">-- Выберите из списка --</option>
-                        </select>
-                    </div>
-                    
-                    <div class="flex gap-2 mt-3">
+                    <div class="flex gap-2">
                         <button id="save-new-rk-btn" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-colors">
                             Сохранить
                         </button>
@@ -472,13 +448,7 @@ require_once __DIR__ . '/config.php';
                 dataType: 'json',
                 success: function(response) {
                     if (response.success) {
-                        renderRkList(response.data);
-                        // Показываем select для выбора/добавления RK только если есть РК
-                        if (response.data.length > 0) {
-                            $('#rk-select-container').removeClass('hidden');
-                        } else {
-                            $('#rk-select-container').addClass('hidden');
-                        }
+                        renderRkSelect(response.data);
                     } else {
                         showToast('Ошибка загрузки RK', 'error');
                     }
@@ -489,6 +459,29 @@ require_once __DIR__ . '/config.php';
                 complete: function() {
                     hideSpinner();
                 }
+            });
+        }
+
+        /**
+         * Заполнить select списком RK
+         */
+        function renderRkSelect(campaigns) {
+            const $select = $('#rk-select');
+            $select.empty().append('<option value="">-- Выберите РК --</option>');
+            
+            if (campaigns.length === 0) {
+                $select.append('<option value="" disabled>Нет доступных РК</option>');
+                $('#fields-container').html(`
+                    <div class="text-center py-12 text-slate-400">
+                        <svg class="mx-auto h-12 w-12 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                        <p class="mt-2 text-sm">Добавьте РК чтобы редактировать поля</p>
+                    </div>
+                `);
+                return;
+            }
+
+            campaigns.forEach(function(rk) {
+                $select.append('<option value="' + rk.id + '" data-rk-name="' + escapeHtml(rk.rk_name) + '">' + escapeHtml(rk.rk_name) + '</option>');
             });
         }
 
@@ -504,11 +497,11 @@ require_once __DIR__ . '/config.php';
                 dataType: 'json',
                 success: function(response) {
                     if (response.success) {
-                        const $select = $('#existing-rk-select');
-                        $select.empty().append('<option value="">-- Выберите из списка --</option>');
-                        response.data.forEach(function(rkName) {
-                            $select.append('<option value="' + escapeHtml(rkName) + '">' + escapeHtml(rkName) + '</option>');
-                        });
+                        const $input = $('#new-rk-name');
+                        // Сохраняем текущее значение
+                        const currentValue = $input.val();
+                        // Очищаем и загружаем новые значения (можно использовать для autocomplete в будущем)
+                        // Пока просто загружаем данные, но не меняем UI
                     }
                 },
                 error: function() {},
@@ -518,49 +511,12 @@ require_once __DIR__ . '/config.php';
             });
         }
 
-        /**
-         * Отрендерить список RK
-         */
-        function renderRkList(campaigns) {
-            const $list = $('#rk-list');
-            $list.empty();
-
-            if (campaigns.length === 0) {
-                $list.html('<div class="text-center py-4 text-slate-400 text-sm">Нет рекламных кампаний для этого лендинга</div>');
-                $('#fields-container').html(`
-                    <div class="text-center py-12 text-slate-400">
-                        <svg class="mx-auto h-12 w-12 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
-                        <p class="mt-2 text-sm">Выберите или добавьте РК чтобы редактировать поля</p>
-                    </div>
-                `);
-                return;
-            }
-
-            campaigns.forEach(function(rk) {
-                const rkItem = $(`
-                    <div class="rk-item p-3 rounded-lg border border-slate-200 flex justify-between items-center transition-colors cursor-pointer hover:bg-indigo-50" data-entry-id="${rk.id}" data-rk-name="${escapeHtml(rk.rk_name)}">
-                        <span class="text-sm font-medium text-slate-700">${escapeHtml(rk.rk_name || '(пусто)')}</span>
-                        <button class="delete-rk-btn p-1 text-slate-400 hover:text-red-500 transition-colors" title="Удалить">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                        </button>
-                    </div>
-                `);
-                $list.append(rkItem);
-            });
-        }
-
         // Открытие формы добавления РК + загрузка уникальных RK
         $('#add-rk-btn').on('click', function() {
-            $('#rk-form-container').removeClass('hidden');
-            $('#new-rk-name').focus();
-            loadUniqueRkNames();
-        });
-
-        // Выбор существующей РК из списка при добавлении
-        $('#existing-rk-select').on('change', function() {
-            const selectedRk = $(this).val();
-            if (selectedRk) {
-                $('#new-rk-name').val(selectedRk);
+            $('#rk-form-container').toggleClass('hidden');
+            if (!$('#rk-form-container').hasClass('hidden')) {
+                $('#new-rk-name').focus();
+                loadUniqueRkNames();
             }
         });
 
@@ -568,7 +524,6 @@ require_once __DIR__ . '/config.php';
         $('#cancel-new-rk-btn').on('click', function() {
             $('#rk-form-container').addClass('hidden');
             $('#new-rk-name').val('');
-            $('#existing-rk-select').val('');
         });
 
         // Сохранение новой РК
@@ -593,7 +548,6 @@ require_once __DIR__ . '/config.php';
                     if (response.success) {
                         showToast('РК создана', 'success');
                         $('#new-rk-name').val('');
-                        $('#existing-rk-select').val('');
                         $('#rk-form-container').addClass('hidden');
                         loadRkList(currentLandingName);
                     } else {
@@ -609,19 +563,15 @@ require_once __DIR__ . '/config.php';
             });
         });
 
-        // Клик по элементу RK в списке - загружаем данные для этой записи
-        $(document).on('click', '.rk-item', function(e) {
-            if ($(e.target).closest('.delete-rk-btn').length) {
-                return; // Не обрабатываем клик если нажали на кнопку удаления
+        // Обработчик изменения выбора РК в select
+        $('#rk-select').on('change', function() {
+            const $selectedOption = $(this).find('option:selected');
+            const entryId = $(this).val();
+            const rkName = $selectedOption.data('rk-name');
+            
+            if (!entryId) {
+                return;
             }
-            
-            const $item = $(this);
-            const entryId = $item.data('entry-id');
-            const rkName = $item.data('rk-name');
-            
-            // Подсветка выбранного элемента
-            $('.rk-item').removeClass('bg-indigo-50 border-indigo-200');
-            $item.addClass('bg-indigo-50 border-indigo-200');
             
             currentEntryId = entryId;
             loadEntryData(entryId, rkName);
@@ -654,38 +604,6 @@ require_once __DIR__ . '/config.php';
                 }
             });
         }
-
-        // Удаление RK
-        $(document).on('click', '.delete-rk-btn', function() {
-            const $item = $(this).closest('.rk-item');
-            const entryId = $item.data('entry-id');
-
-            if (!confirm('Вы уверены, что хотите удалить эту рекламную кампанию?')) {
-                return;
-            }
-
-            showSpinner();
-            $.ajax({
-                url: 'handler.php',
-                method: 'POST',
-                data: { action: 'delete_rk_entry', entry_id: entryId },
-                dataType: 'json',
-                success: function(response) {
-                    if (response.success) {
-                        showToast('РК удалена', 'success');
-                        loadRkList(currentLandingName);
-                    } else {
-                        showToast(response.error || 'Ошибка удаления РК', 'error');
-                    }
-                },
-                error: function() {
-                    showToast('Ошибка сервера', 'error');
-                },
-                complete: function() {
-                    hideSpinner();
-                }
-            });
-        });
 
         loadLandings();
     });

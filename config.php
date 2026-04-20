@@ -7,13 +7,8 @@ define('DB_NAME', 'landings_db');
 define('DB_USER', 'root');
 define('DB_PASS', 'root');
 
+// Конфигурация полей для редактирования (кроме rk_name, которое выбирается отдельно)
 $fieldConfig = [
-    'rk_name' => [
-        'label' => 'Рекламная кампания (RK)',
-        'type' => 'text',
-        'rows' => 1,
-        'placeholder' => 'Введите название рекламной кампании...'
-    ],
     'title' => [
         'label' => 'Заголовок (Title)',
         'type' => 'textarea',

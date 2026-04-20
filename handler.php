@@ -26,6 +26,10 @@ switch ($action) {
         getLandingData($pdo);
         break;
     
+    case 'get_landing_data_by_entry':
+        getLandingDataByEntry($pdo);
+        break;
+    
     case 'save_field':
         saveField($pdo);
         break;
@@ -36,6 +40,10 @@ switch ($action) {
     
     case 'get_rk_list':
         getRkList($pdo);
+        break;
+    
+    case 'get_unique_rk_names':
+        getUniqueRkNames($pdo);
         break;
     
     case 'create_rk_entry':
@@ -114,13 +122,33 @@ function getRkList(PDO $pdo): void {
     }
     
     try {
-        $stmt = $pdo->prepare("SELECT id, rk_name FROM landings_data WHERE landing_name = :landing_name ORDER BY rk_name ASC");
+        $stmt = $pdo->prepare("SELECT DISTINCT id, rk_name FROM landings_data WHERE landing_name = :landing_name AND rk_name != '' ORDER BY rk_name ASC");
         $stmt->execute(['landing_name' => $landingName]);
         $campaigns = $stmt->fetchAll();
         
         echo json_encode([
             'success' => true,
             'data' => $campaigns
+        ]);
+    } catch (PDOException $e) {
+        echo json_encode([
+            'success' => false,
+            'error' => 'Ошибка базы данных: ' . $e->getMessage()
+        ]);
+    }
+}
+
+/**
+ * Получить список всех уникальных RK для добавления
+ */
+function getUniqueRkNames(PDO $pdo): void {
+    try {
+        $stmt = $pdo->query("SELECT DISTINCT rk_name FROM landings_data WHERE rk_name != '' ORDER BY rk_name ASC");
+        $rkNames = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        
+        echo json_encode([
+            'success' => true,
+            'data' => $rkNames
         ]);
     } catch (PDOException $e) {
         echo json_encode([
@@ -218,6 +246,47 @@ function saveField(PDO $pdo): void {
             'success' => true,
             'message' => 'Поле успешно сохранено'
         ]);
+    } catch (PDOException $e) {
+        echo json_encode([
+            'success' => false,
+            'error' => 'Ошибка базы данных: ' . $e->getMessage()
+        ]);
+    }
+}
+
+/**
+ * Получить данные лендинга по ID записи (для выбранной РК)
+ */
+function getLandingDataByEntry(PDO $pdo): void {
+    global $fieldConfig;
+    
+    $entryId = $_POST['entry_id'] ?? null;
+    
+    if (!$entryId) {
+        echo json_encode(['success' => false, 'error' => 'Не указан ID записи']);
+        return;
+    }
+    
+    $fields = array_keys($fieldConfig);
+    $fieldsStr = implode(', ', $fields);
+    
+    try {
+        $sql = "SELECT id, landing_name, rk_name, $fieldsStr FROM landings_data WHERE id = :id";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(['id' => $entryId]);
+        $data = $stmt->fetch();
+        
+        if ($data) {
+            echo json_encode([
+                'success' => true,
+                'data' => $data
+            ]);
+        } else {
+            echo json_encode([
+                'success' => false,
+                'error' => 'Запись не найдена'
+            ]);
+        }
     } catch (PDOException $e) {
         echo json_encode([
             'success' => false,

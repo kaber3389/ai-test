@@ -1,11 +1,9 @@
 <?php
-/**
- * Основной файл админки
- */
+
+declare(strict_types=1);
 
 session_start();
 
-// Проверка авторизации
 if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
     header('Location: index.php');
     exit;
@@ -22,7 +20,6 @@ require_once __DIR__ . '/config.php';
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <style>
-        /* Стили для спиннера */
         #spinner {
             display: none;
             position: fixed;
@@ -50,12 +47,10 @@ require_once __DIR__ . '/config.php';
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        /* Блокировка интерфейса */
         .locked {
             pointer-events: none;
             opacity: 0.6;
         }
-        /* Toast уведомления */
         #toast-container {
             position: fixed;
             top: 20px;
@@ -87,7 +82,6 @@ require_once __DIR__ . '/config.php';
                 opacity: 1;
             }
         }
-        /* AI Preview блок */
         .ai-preview {
             display: none;
             background-color: #f0f9ff;
@@ -102,25 +96,20 @@ require_once __DIR__ . '/config.php';
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
-    <!-- Спиннер -->
     <div id="spinner">
         <div class="spinner"></div>
     </div>
 
-    <!-- Контейнер для toast уведомлений -->
     <div id="toast-container"></div>
 
-    <!-- Выход -->
     <div class="absolute top-4 right-4">
         <a href="logout.php" class="text-red-500 hover:text-red-700 font-medium">Выйти</a>
     </div>
 
-    <!-- Основной контент -->
     <div class="container mx-auto px-4 py-8 max-w-4xl">
         <div class="bg-white rounded-lg shadow-md p-6">
             <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Управление лендингами</h1>
 
-            <!-- Выбор лендинга -->
             <div class="mb-6">
                 <label for="landing-select" class="block text-gray-700 text-sm font-bold mb-2">Выберите лендинг:</label>
                 <select 
@@ -131,33 +120,27 @@ require_once __DIR__ . '/config.php';
                 </select>
             </div>
 
-            <!-- Контейнер для полей -->
             <div id="fields-container" class="space-y-6">
-                <!-- Поля будут загружены сюда через AJAX -->
             </div>
         </div>
     </div>
 
     <script>
     $(document).ready(function() {
-        // Глобальные переменные
-        let currentLandingId = null;
+        let currentLandingId: number | null = null;
         const fieldConfig = <?= json_encode($fieldConfig) ?>;
 
-        // Показать спиннер
-        function showSpinner() {
+        function showSpinner(): void {
             $('#spinner').addClass('active');
             $('body').addClass('locked');
         }
 
-        // Скрыть спиннер
-        function hideSpinner() {
+        function hideSpinner(): void {
             $('#spinner').removeClass('active');
             $('body').removeClass('locked');
         }
 
-        // Показать toast уведомление
-        function showToast(message, type = 'success') {
+        function showToast(message: string, type: 'success' | 'error' = 'success'): void {
             const toastClass = type === 'success' ? 'toast-success' : 'toast-error';
             const toast = $('<div class="toast ' + toastClass + '">' + message + '</div>');
             $('#toast-container').append(toast);
@@ -169,15 +152,14 @@ require_once __DIR__ . '/config.php';
             }, 3000);
         }
 
-        // Загрузить список лендингов
-        function loadLandings() {
+        function loadLandings(): void {
             showSpinner();
             $.ajax({
                 url: 'handler.php',
                 method: 'POST',
                 data: { action: 'get_landings' },
                 dataType: 'json',
-                success: function(response) {
+                success: function(response: { success: boolean; data: Array<{ id: number; landing_name: string }> }) {
                     if (response.success) {
                         const $select = $('#landing-select');
                         response.data.forEach(function(landing) {
@@ -196,8 +178,7 @@ require_once __DIR__ . '/config.php';
             });
         }
 
-        // Загрузить данные лендинга
-        function loadLandingData(landingId) {
+        function loadLandingData(landingId: number): void {
             currentLandingId = landingId;
             showSpinner();
             
@@ -206,7 +187,7 @@ require_once __DIR__ . '/config.php';
                 method: 'POST',
                 data: { action: 'get_landing_data', landing_id: landingId },
                 dataType: 'json',
-                success: function(response) {
+                success: function(response: { success: boolean; data: Record<string, string> }) {
                     if (response.success) {
                         renderFields(response.data);
                     } else {
@@ -222,8 +203,7 @@ require_once __DIR__ . '/config.php';
             });
         }
 
-        // Рендеринг полей
-        function renderFields(data) {
+        function renderFields(data: Record<string, string>): void {
             const $container = $('#fields-container');
             $container.empty();
 
@@ -282,9 +262,8 @@ require_once __DIR__ . '/config.php';
             });
         }
 
-        // Экранирование HTML
-        function escapeHtml(text) {
-            const map = {
+        function escapeHtml(text: string): string {
+            const map: Record<string, string> = {
                 '&': '&amp;',
                 '<': '&lt;',
                 '>': '&gt;',
@@ -294,8 +273,7 @@ require_once __DIR__ . '/config.php';
             return String(text).replace(/[&<>"']/g, function(m) { return map[m]; });
         }
 
-        // Сохранение поля
-        function saveField(fieldName, value) {
+        function saveField(fieldName: string, value: string): void {
             showSpinner();
             
             $.ajax({
@@ -308,7 +286,7 @@ require_once __DIR__ . '/config.php';
                     value: value
                 },
                 dataType: 'json',
-                success: function(response) {
+                success: function(response: { success: boolean; error?: string }) {
                     if (response.success) {
                         showToast('Поле "' + fieldConfig[fieldName].label + '" сохранено', 'success');
                     } else {
@@ -324,8 +302,7 @@ require_once __DIR__ . '/config.php';
             });
         }
 
-        // Генерация через ИИ
-        function generateAI(fieldName) {
+        function generateAI(fieldName: string): void {
             const $fieldBlock = $('.field-block[data-field="' + fieldName + '"]');
             const $preview = $('#preview-' + fieldName);
             const $textarea = $('#field-' + fieldName);
@@ -343,7 +320,7 @@ require_once __DIR__ . '/config.php';
                     current_value: $textarea.val()
                 },
                 dataType: 'json',
-                success: function(response) {
+                success: function(response: { success: boolean; generated_text?: string; error?: string }) {
                     if (response.success) {
                         $preview.find('.ai-preview-text').text(response.generated_text);
                         $preview.data('generated-text', response.generated_text);
@@ -362,35 +339,31 @@ require_once __DIR__ . '/config.php';
             });
         }
 
-        // Обработчик выбора лендинга
         $('#landing-select').on('change', function() {
             const landingId = $(this).val();
             if (landingId) {
-                loadLandingData(landingId);
+                loadLandingData(Number(landingId));
             } else {
                 $('#fields-container').empty();
                 currentLandingId = null;
             }
         });
 
-        // Обработчик кнопки "Сохранить"
         $(document).on('click', '.save-btn', function() {
-            const fieldName = $(this).data('field');
-            const value = $('#field-' + fieldName).val();
+            const fieldName = $(this).data('field') as string;
+            const value = $('#field-' + fieldName).val() as string;
             saveField(fieldName, value);
         });
 
-        // Обработчик кнопки "Сгенерировать через ИИ"
         $(document).on('click', '.ai-btn', function() {
-            const fieldName = $(this).data('field');
+            const fieldName = $(this).data('field') as string;
             generateAI(fieldName);
         });
 
-        // Обработчик кнопки "Применить"
         $(document).on('click', '.apply-btn', function() {
-            const fieldName = $(this).data('field');
+            const fieldName = $(this).data('field') as string;
             const $preview = $('#preview-' + fieldName);
-            const generatedText = $preview.data('generated-text');
+            const generatedText = $preview.data('generated-text') as string;
             
             $('#field-' + fieldName).val(generatedText);
             $preview.removeClass('active');
@@ -398,13 +371,11 @@ require_once __DIR__ . '/config.php';
             showToast('Текст применён', 'success');
         });
 
-        // Обработчик кнопки "Отменить"
         $(document).on('click', '.cancel-btn', function() {
-            const fieldName = $(this).data('field');
+            const fieldName = $(this).data('field') as string;
             $('#preview-' + fieldName).removeClass('active');
         });
 
-        // Инициализация
         loadLandings();
     });
     </script>

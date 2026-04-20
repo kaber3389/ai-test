@@ -1,16 +1,12 @@
 <?php
-/**
- * Конфигурация базы данных и полей
- */
 
-// Настройки подключения к БД
+declare(strict_types=1);
+
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'landings_db');
 define('DB_USER', 'root');
 define('DB_PASS', '');
 
-// Конфигурация полей для редактирования
-// Чтобы добавить новое поле, добавьте его в БД и в этот массив
 $fieldConfig = [
     'title' => [
         'label' => 'Заголовок (Title)',
@@ -38,6 +34,5 @@ $fieldConfig = [
     ]
 ];
 
-// Данные для авторизации (hardcode)
 define('AUTH_LOGIN', 'admin');
 define('AUTH_PASSWORD', 'admin');
